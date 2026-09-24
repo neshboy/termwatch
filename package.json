@@ -1,0 +1,46 @@
+{
+  "name": "termwatch",
+  "version": "0.1.0",
+  "description": "SSH-friendly, terminal-native live dashboard for Docker container health (k9s-style TUI).",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "termwatch": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "snapshot": "tsx src/cli.ts snapshot",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "docker",
+    "tui",
+    "dashboard",
+    "cli",
+    "homelab",
+    "ssh",
+    "monitoring"
+  ],
+  "dependencies": {
+    "blessed": "^0.1.81"
+  },
+  "devDependencies": {
+    "@types/blessed": "^0.1.25",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4",
+    "vitest": "^5.0.1"
+  }
+}
