@@ -19,7 +19,7 @@ const MEM_WIDTH = 22;
 const UPTIME_WIDTH = 18;
 
 function pad(value: string, width: number): string {
-  if (value.length >= width) return value.slice(0, Math.max(0, width - 1)) + (width > 0 ? " " : "");
+  if (value.length > width) return value.slice(0, Math.max(0, width - 1)) + (width > 0 ? " " : "");
   return value + " ".repeat(width - value.length);
 }
 
@@ -79,6 +79,7 @@ export async function runTui(): Promise<void> {
   let logProcess: ChildProcess | null = null;
   let pollTimer: ReturnType<typeof setInterval> | null = null;
   let lastSelectedId: string | null = null;
+  let isRefreshing = false;
 
   const header = blessed.box({
     top: 0,
@@ -171,6 +172,8 @@ export async function runTui(): Promise<void> {
   }
 
   async function refresh(): Promise<void> {
+    if (isRefreshing) return;
+    isRefreshing = true;
     try {
       rows = await listContainers();
       if (mode === "list") {
@@ -181,6 +184,8 @@ export async function runTui(): Promise<void> {
       }
     } catch (err) {
       setFooter(`error refreshing container list: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      isRefreshing = false;
     }
   }
 
@@ -207,8 +212,8 @@ export async function runTui(): Promise<void> {
     setFooter("q/Esc back to list   Ctrl-C quit");
 
     logProcess = tailLogs(row.name, 100);
-    logProcess.stdout?.on("data", (chunk: Buffer) => logBox.log(chunk.toString().trimEnd()));
-    logProcess.stderr?.on("data", (chunk: Buffer) => logBox.log(chunk.toString().trimEnd()));
+    logProcess.stdout?.on("data", (chunk: Buffer) => logBox.log(blessed.escape(chunk.toString().trimEnd())));
+    logProcess.stderr?.on("data", (chunk: Buffer) => logBox.log(blessed.escape(chunk.toString().trimEnd())));
     logProcess.on("error", (err) => logBox.log(`{red-fg}[termwatch] failed to tail logs: ${err.message}{/red-fg}`));
     screen.render();
   }
